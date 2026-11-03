@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لعبة الذاكرة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4ecd8; --text:#10243a; --muted:#5b6b7a; --panel:#e9dfc4;
+  --back:#1f5f8b; --back2:#174a6e; --face:#fbf4de; --ink:#10243a; --gold:#e8b04a; --ok:#1f7a5a;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0e2a47; --text:#f4ecd8; --muted:#9fb3c8; --panel:#143659; --face:#f3e6c4; }
+}
+:root[data-theme="dark"]{ --bg:#0e2a47; --text:#f4ecd8; --muted:#9fb3c8; --panel:#143659; --face:#f3e6c4; }
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0; min-height:100%; background:var(--bg); color:var(--text); font-family:"Tajawal",system-ui,sans-serif; display:flex; justify-content:center}
+main{width:100%; max-width:460px; padding:18px 16px 28px}
+h1{font-family:"Reem Kufi",serif; font-weight:700; font-size:2.4rem; margin:6px 0 2px; letter-spacing:0}
+.sub{color:var(--muted); margin:0 0 16px; font-size:1rem}
+.levels{display:flex; gap:6px; background:var(--panel); padding:5px; border-radius:14px; margin-bottom:14px}
+.levels button{flex:1; border:0; background:transparent; color:var(--text); font:700 1rem "Tajawal",sans-serif; padding:10px 0; border-radius:10px; cursor:pointer}
+.levels button[aria-pressed="true"]{background:var(--gold); color:#10243a}
+.stats{display:flex; justify-content:space-between; margin-bottom:14px}
+.stat{display:flex; flex-direction:column; align-items:center; flex:1}
+.stat b{font-family:"Reem Kufi",serif; font-size:1.7rem; line-height:1.1; font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted); font-size:.9rem}
+.grid{display:grid; grid-template-columns:repeat(4,1fr); gap:9px}
+.card{position:relative; aspect-ratio:3/4; border:0; padding:0; background:none; perspective:600px; cursor:pointer; -webkit-tap-highlight-color:transparent}
+.in{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .35s}
+.card.open .in,.card.done .in{transform:rotateY(180deg)}
+.f,.b{position:absolute; inset:0; border-radius:12px; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; align-items:center; justify-content:center}
+.b{background:
+  conic-gradient(from 45deg at 50% 50%, var(--back2) 0 25%, var(--back) 0 50%, var(--back2) 0 75%, var(--back) 0) 0 0/22px 22px;
+  border:3px solid var(--gold)}
+.b::after{content:"✦"; color:var(--gold); font-size:1.5rem}
+.f{transform:rotateY(180deg); background:var(--face); color:var(--ink); font-family:"Reem Kufi",serif; font-weight:700; font-size:2.5rem; border:3px solid var(--face)}
+.card.done .f{background:var(--gold); border-color:var(--gold)}
+.card:focus-visible{outline:3px solid var(--gold); outline-offset:3px; border-radius:12px}
+.reset{display:block; width:100%; margin-top:18px; padding:14px; border:0; border-radius:14px; background:var(--panel); color:var(--text); font:700 1.05rem "Tajawal",sans-serif; cursor:pointer}
+.win{position:fixed; inset:0; background:rgba(8,20,36,.72); display:none; align-items:center; justify-content:center; padding:20px}
+.win.show{display:flex}
+.box{background:var(--bg); color:var(--text); border:3px solid var(--gold); border-radius:20px; padding:26px 22px; text-align:center; max-width:340px; width:100%}
+.box h2{font-family:"Reem Kufi",serif; font-size:2rem; margin:0 0 8px}
+.box p{margin:4px 0; font-size:1.1rem}
+.box .reset{background:var(--gold); color:#10243a; margin-top:18px}
+@media (prefers-reduced-motion: reduce){ .in{transition:none} }
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0e2a47">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<main>
+  <h1>لعبة الذاكرة</h1>
+  <p class="sub">اقلب بلاطتين وابحث عن الحرفين المتطابقين.</p>
+  <div class="levels" id="levels">
+    <button data-n="6">سهل</button>
+    <button data-n="8">متوسط</button>
+    <button data-n="10">صعب</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><b id="moves">0</b><span>الحركات</span></div>
+    <div class="stat"><b id="time">0:00</b><span>الوقت</span></div>
+    <div class="stat"><b id="best">-</b><span>أفضل نتيجة</span></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <button class="reset" id="reset">لعبة جديدة</button>
+</main>
+<div class="win" id="win" role="dialog" aria-modal="true">
+  <div class="box">
+    <h2>أحسنت!</h2>
+    <p id="wmsg"></p>
+    <p id="wbest"></p>
+    <button class="reset" id="again">العب مجدداً</button>
+  </div>
+</div>
+<script>
+const LETTERS = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي".split("");
+let pairs = 6, cards = [], first = null, lock = false, moves = 0, matched = 0, secs = 0, timer = null;
+const $ = id => document.getElementById(id);
+
+function getBest(){ try { return localStorage.getItem("mem-best-" + pairs); } catch(e){ return null; } }
+function setBest(v){ try { localStorage.setItem("mem-best-" + pairs, String(v)); } catch(e){} }
+function fmt(s){ return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); }
+function showBest(){ const b = getBest(); $("best").textContent = b ? b : "-"; }
+
+function setLevel(n){
+  pairs = n;
+  document.querySelectorAll("#levels button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === n)));
+  start();
+}
+
+function start(){
+  clearInterval(timer); timer = null;
+  first = null; lock = false; moves = 0; matched = 0; secs = 0;
+  $("moves").textContent = 0; $("time").textContent = "0:00"; showBest();
+  $("win").classList.remove("show");
+  const pick = LETTERS.slice().sort(() => Math.random() - .5).slice(0, pairs);
+  cards = pick.concat(pick).sort(() => Math.random() - .5);
+  const g = $("grid"); g.innerHTML = "";
+  cards.forEach((l, i) => {
+    const c = document.createElement("button");
+    c.className = "card"; c.setAttribute("aria-label", "بلاطة " + (i + 1));
+    c.innerHTML = '<div class="in"><div class="b"></div><div class="f">' + l + '</div></div>';
+    c.addEventListener("click", () => flip(c, i));
+    g.appendChild(c);
+  });
+}
+
+function flip(el, i){
+  if (lock || el.classList.contains("open") || el.classList.contains("done")) return;
+  if (!timer) timer = setInterval(() => { secs++; $("time").textContent = fmt(secs); }, 1000);
+  el.classList.add("open");
+  if (!first){ first = {el, i}; return; }
+  moves++; $("moves").textContent = moves;
+  const a = first; first = null;
+  if (cards[a.i] === cards[i]){
+    a.el.classList.replace("open", "done"); el.classList.replace("open", "done");
+    if (navigator.vibrate) navigator.vibrate(20);
+    if (++matched === pairs) finish();
+  } else {
+    lock = true;
+    setTimeout(() => { a.el.classList.remove("open"); el.classList.remove("open"); lock = false; }, 750);
+  }
+}
+
+function finish(){
+  clearInterval(timer); timer = null;
+  const b = getBest();
+  let msg;
+  if (!b || moves < +b){ setBest(moves); msg = "رقم قياسي جديد!"; }
+  else msg = "أفضل نتيجة لك: " + b + " حركة";
+  showBest();
+  $("wmsg").textContent = "أنهيت اللعبة في " + moves + " حركة و" + fmt(secs) + ".";
+  $("wbest").textContent = msg;
+  setTimeout(() => $("win").classList.add("show"), 450);
+}
+
+document.querySelectorAll("#levels button").forEach(b => b.addEventListener("click", () => setLevel(+b.dataset.n)));
+$("reset").addEventListener("click", start);
+$("again").addEventListener("click", start);
+setLevel(6);
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
