@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.oosssama324_ship_it.twa",
+    "sha256_cert_fingerprints": ["94:7C:1B:66:DD:EA:19:1C:B6:0B:33:59:E4:49:B6:13:BF:0C:D1:E4:3D:7E:42:D6:C3:5C:10:A9:6D:93:83:C5"]
+  }
+}]
