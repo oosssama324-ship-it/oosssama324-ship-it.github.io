@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>وصلة</title>
+<meta name="description" content="وَصلة: لعبة ألغاز كلمات عربية. اسحب الحروف لتكوين الكلمات واملأ الشبكة.">
+<meta name="theme-color" content="#123a5c">
+<link rel="icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#123a5c; --sky2:#1d6a8a; --gold:#f2b84b; --gold2:#d9962a; --cream:#fff6e3; --ink:#1b2a3a;
+  --ok:#2fbf71; --bad:#e5484d; --card:rgba(255,255,255,.14); --line:rgba(255,255,255,.25);
+}
+/* ألوان كل عالم (Theme) */
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0; font-family:"Cairo",system-ui,sans-serif; color:#fff; overflow:hidden; user-select:none; -webkit-user-select:none;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,.18), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4l7 19 19 7-19 7-7 19-7-19-19-7 19-7z' fill='none' stroke='%23ffffff' stroke-opacity='.06' stroke-width='1.5'/%3E%3C/svg%3E"),
+    linear-gradient(170deg, var(--sky1), var(--sky2));
+  transition:background .6s;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);
+}
+button{font-family:inherit; cursor:pointer}
+.screen{position:fixed; inset:0; display:none; flex-direction:column; align-items:center; padding:max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom))}
+.screen.on{display:flex}
+
+/* ===== الشاشة الرئيسية ===== */
+#home{justify-content:center; gap:22px; text-align:center}
+.logo{font-family:"Lalezar",serif; font-size:clamp(4rem,22vw,7rem); line-height:1; color:var(--gold); text-shadow:0 6px 0 var(--gold2), 0 14px 30px rgba(0,0,0,.35); margin:0; animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+.tag{margin:0; opacity:.85; font-size:1.1rem}
+.big-btn{border:0; border-radius:20px; padding:16px 48px; font-size:1.5rem; font-weight:800; color:var(--ink); background:linear-gradient(var(--gold),var(--gold2)); box-shadow:0 6px 0 #a86d16, 0 12px 24px rgba(0,0,0,.3); transition:transform .1s}
+.big-btn:active{transform:translateY(4px); box-shadow:0 2px 0 #a86d16}
+.big-btn small{display:block; font-size:.9rem; font-weight:700; opacity:.75}
+.pill{display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--line); padding:6px 14px; border-radius:999px; font-weight:800; font-variant-numeric:tabular-nums}
+.coin{width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 35% 35%, #ffe08a, var(--gold2)); box-shadow:inset 0 -2px 0 rgba(0,0,0,.2); display:inline-block}
+.home-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+.ghost{background:var(--card); border:1px solid var(--line); color:#fff; border-radius:14px; padding:10px 18px; font-weight:700}
+
+/* ===== شاشة اللعب ===== */
+.top{width:100%; max-width:480px; display:flex; align-items:center; justify-content:space-between; gap:8px}
+.icon{width:44px; height:44px; border-radius:14px; border:1px solid var(--line); background:var(--card); color:#fff; display:grid; place-items:center}
+.lvl{font-weight:800; font-size:1.1rem; text-align:center; line-height:1.3}
+.lvl small{display:block; font-weight:600; opacity:.75; font-size:.8rem}
+
+.board{flex:1; width:100%; max-width:480px; display:grid; place-items:center; min-height:0; padding:10px 0}
+.grid{display:grid; gap:5px; direction:rtl}
+.cell{width:var(--s); height:var(--s); border-radius:calc(var(--s)*.22); background:rgba(255,255,255,.92); box-shadow:inset 0 -3px 0 rgba(0,0,0,.12); display:grid; place-items:center; font-weight:800; font-size:calc(var(--s)*.55); color:var(--ink); line-height:1}
+.cell span{transform:scale(0); transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.cell.show span{transform:scale(1)}
+.cell.show{background:var(--cream)}
+.cell.hint span{color:#b26b00}
+.cell.pop{animation:pop .45s}
+@keyframes pop{40%{transform:scale(1.18); background:var(--gold)}}
+
+.preview{height:52px; display:flex; align-items:center; justify-content:center}
+.preview b{background:var(--cream); color:var(--ink); padding:4px 18px; border-radius:14px; font-size:1.7rem; font-weight:800; min-width:60px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.preview b:empty{visibility:hidden}
+.preview.ok b{background:var(--ok); color:#fff}
+.preview.bad b{background:var(--bad); color:#fff; animation:shake .4s}
+.preview.bonus b{background:var(--gold); color:var(--ink)}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+.play-area{display:flex; align-items:center; justify-content:center; gap:14px; width:100%; max-width:480px}
+.side{display:flex; flex-direction:column; gap:12px}
+.tool{position:relative; width:52px; height:52px; border-radius:50%; border:0; background:var(--cream); color:var(--ink); display:grid; place-items:center; box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.tool:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.tool .cost{position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); background:var(--gold); color:var(--ink); font-size:.7rem; font-weight:800; border-radius:999px; padding:0 6px; white-space:nowrap}
+.tool .cnt{position:absolute; top:-6px; right:-6px; background:var(--bad); color:#fff; font-size:.75rem; font-weight:800; border-radius:999px; min-width:20px; height:20px; display:grid; place-items:center; padding:0 5px}
+
+.wheel{position:relative; width:var(--w); height:var(--w); border-radius:50%; background:rgba(255,255,255,.16); border:2px solid var(--line); touch-action:none; flex:none}
+.wheel svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+.wheel line,.wheel polyline{stroke:var(--gold); stroke-width:10; stroke-linecap:round; stroke-linejoin:round; fill:none}
+.letter{position:absolute; width:var(--l); height:var(--l); margin:calc(var(--l)/-2) 0 0 calc(var(--l)/-2); border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:calc(var(--l)*.55); background:var(--cream); color:var(--ink); box-shadow:0 4px 0 rgba(0,0,0,.2); transition:transform .12s, background .12s, left .35s, top .35s; pointer-events:none}
+.letter.on{background:var(--gold); transform:scale(1.12)}
+
+/* ===== النوافذ ===== */
+.overlay{position:fixed; inset:0; background:rgba(5,15,28,.65); display:none; align-items:center; justify-content:center; padding:20px; z-index:20}
+.overlay.on{display:flex}
+.panel{background:linear-gradient(var(--cream),#f6e3bd); color:var(--ink); border-radius:26px; padding:28px 22px 24px; width:100%; max-width:340px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.45); animation:zoom .35s cubic-bezier(.3,1.5,.5,1)}
+@keyframes zoom{from{transform:scale(.6); opacity:0}}
+.panel h2{font-family:"Lalezar",serif; font-weight:400; font-size:2.6rem; margin:0; color:var(--gold2); line-height:1.2}
+.panel p{margin:6px 0; font-weight:700}
+.stars{font-size:2.4rem; letter-spacing:6px; color:var(--gold)}
+.reward{display:inline-flex; gap:6px; align-items:center; font-size:1.3rem; font-weight:800; margin:10px 0 18px}
+.panel .big-btn{width:100%; font-size:1.25rem; padding:12px}
+.words-list{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:12px 0 18px}
+.words-list span{background:#fff; border-radius:10px; padding:2px 12px; font-weight:800}
+
+.toast{position:fixed; top:18%; left:50%; transform:translate(-50%,-10px); background:rgba(0,0,0,.75); padding:8px 18px; border-radius:14px; font-weight:800; opacity:0; transition:.25s; pointer-events:none; z-index:30; white-space:nowrap}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+.fly{position:fixed; z-index:25; pointer-events:none; font-weight:800; color:var(--gold); font-size:1.4rem; animation:flyup 1s forwards}
+@keyframes flyup{to{transform:translateY(-80px); opacity:0}}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} .cell span{transform:scale(1)} }
+</style>
+</head>
+<body>
+
+<!-- الشاشة الرئيسية -->
+<section class="screen on" id="home">
+  <span class="pill"><i class="coin"></i><span class="coins">0</span></span>
+  <h1 class="logo">وَصلة</h1>
+  <p class="tag">اسحب الحروف… وصِل الكلمات</p>
+  <button class="big-btn" id="play">العب<small id="home-level">المستوى 1</small></button>
+  <div class="home-row">
+    <button class="ghost" id="daily">🎁 هدية يومية</button>
+    <button class="ghost" id="sound-btn">🔊 الصوت</button>
+  </div>
+</section>
+
+<!-- شاشة اللعب -->
+<section class="screen" id="game">
+  <div class="top">
+    <button class="icon" id="back" aria-label="الرئيسية"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="lvl"><span id="lvl-title">المستوى 1</span><small id="lvl-theme"></small></div>
+    <span class="pill"><i class="coin"></i><span class="coins">0</span></span>
+  </div>
+  <div class="board" id="board"><div class="grid" id="grid"></div></div>
+  <div class="preview" id="preview"><b id="current"></b></div>
+  <div class="play-area">
+    <div class="side">
+      <button class="tool" id="shuffle" aria-label="خلط الحروف"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+      <button class="tool" id="bonus-btn" aria-label="كلمات المكافأة"><span style="font-size:1.4rem">⭐</span><span class="cnt" id="bonus-cnt">0</span></button>
+    </div>
+    <div class="wheel" id="wheel"><svg id="lines"><polyline id="path"/><line id="tail" style="display:none"/></svg></div>
+    <div class="side">
+      <button class="tool" id="hint" aria-label="كشف حرف"><span style="font-size:1.4rem">💡</span><span class="cost">25</span></button>
+      <button class="tool" id="reveal" aria-label="كشف كلمة"><span style="font-size:1.4rem">🔍</span><span class="cost">60</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- نافذة الفوز -->
+<div class="overlay" id="win">
+  <div class="panel">
+    <div class="stars">★★★</div>
+    <h2>ممتاز!</h2>
+    <p id="win-msg"></p>
+    <div class="reward">+<span id="win-coins">10</span> <i class="coin"></i></div>
+    <button class="big-btn" id="next">المستوى التالي</button>
+  </div>
+</div>
+
+<!-- نافذة كلمات المكافأة -->
+<div class="overlay" id="bonus-box">
+  <div class="panel">
+    <h2>كلمات المكافأة</h2>
+    <p>كل كلمة صحيحة خارج الشبكة تمنحك عملة.</p>
+    <div class="words-list" id="bonus-list"></div>
+    <button class="big-btn" id="bonus-close">حسنًا</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="engine.js"></script>
+<script src="levels.js"></script>
+<script src="levels-gen.js"></script>
+<script>
+"use strict";
+const { normalize, buildCrossword, cellsOf, SwipeTracker, checkWord } = window.Wasla;
+const $ = id => document.getElementById(id);
+
+// ---------- العوالم والمستويات ----------
+// ألوان كل عالم: [لون أعلى الخلفية، لون أسفلها]
+const THEMES = {
+  "البداية": ["#123a5c", "#1d6a8a"], "البحر": ["#0b3b5a", "#138a9e"], "الكتب": ["#3b2350", "#7a3f7c"],
+  "الصحراء": ["#6b3a1e", "#c47a35"], "الواحة": ["#14452f", "#2f8f5b"], "الأندلس": ["#5a1f2b", "#b4495a"],
+  "السوق": ["#5b2a0e", "#d0742a"], "النجوم": ["#120f3a", "#3b3a8f"], "الجبال": ["#24323f", "#5d7a8c"],
+  "القلعة": ["#3a2a1a", "#8a6a3f"], "النيل": ["#0f3d4a", "#2a9d8f"], "الحديقة": ["#2d4a14", "#7ab32f"],
+  "القمر": ["#0d1b2a", "#415a77"], "المرجان": ["#4a1530", "#e0607e"]
+};
+const GEN_WORLDS = ["الواحة", "الأندلس", "السوق", "النجوم", "الجبال", "القلعة", "النيل", "الحديقة", "القمر", "المرجان"];
+const ALL_LEVELS = LEVELS.concat((window.LEVELS_GEN || []).map((g, i) => ({
+  theme: GEN_WORLDS[Math.floor(i / 30) % GEN_WORLDS.length], letters: [...g.l], words: g.w, bonus: []
+})));
+
+// ---------- المعجم ----------
+// يُحمَّل في الخلفية؛ أي كلمة صحيحة فيه يمكن تكوينها من الحروف تُحسب كلمة مكافأة.
+let DICT = null;
+fetch("dict/ar-words.txt").then(r => r.ok ? r.text() : Promise.reject())
+  .then(t => { DICT = new Set(t.split("\n").map(w => normalize(w)).filter(Boolean)); })
+  .catch(() => {});
+
+// ---------- الحفظ ----------
+const SAVE_KEY = "wasla-save-v1";
+let save = { level: 0, coins: 100, sound: true, daily: "", progress: null };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+function persist(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+function setCoins(n){ save.coins = n; document.querySelectorAll(".coins").forEach(el => el.textContent = n); persist(); }
+
+// ---------- الصوت (WebAudio بدون ملفات) ----------
+let actx = null;
+function beep(freq, dur = .08, type = "sine", vol = .12){
+  if (!save.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + dur);
+    o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
+  } catch (e) {}
+}
+const sfx = {
+  tick: n => beep(420 + n * 70, .06, "triangle"),
+  ok:   () => [523, 659, 784].forEach((f, i) => setTimeout(() => beep(f, .12), i * 90)),
+  bad:  () => beep(160, .2, "sawtooth", .07),
+  coin: () => beep(1200, .1, "square", .05),
+  win:  () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, .18), i * 120))
+};
+const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+// ---------- حالة المستوى ----------
+let level, state, tracker, nodes = [];
+function loadLevel(i){
+  const def = ALL_LEVELS[i % ALL_LEVELS.length];
+  level = { ...def, index: i, layout: buildCrossword(def.words) };
+  const p = save.progress && save.progress.level === i ? save.progress : null;
+  state = {
+    found: new Set(p ? p.found : []),
+    bonus: new Set(p ? p.bonus : []),
+    revealed: new Set(p ? p.revealed : []),
+    order: p ? p.order : shuffleArr([...def.letters.keys()])
+  };
+  const col = THEMES[def.theme] || THEMES["البداية"];
+  document.body.style.setProperty("--sky1", col[0]); document.body.style.setProperty("--sky2", col[1]);
+  document.querySelector('meta[name="theme-color"]').content = col[0];
+  $("lvl-title").textContent = "المستوى " + (i + 1);
+  $("lvl-theme").textContent = "عالم " + def.theme;
+  renderGrid(); renderWheel(); updateBonus();
+}
+function saveProgress(){
+  save.progress = { level: level.index, found: [...state.found], bonus: [...state.bonus], revealed: [...state.revealed], order: state.order };
+  persist();
+}
+function shuffleArr(a){ for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ---------- رسم الشبكة ----------
+function renderGrid(){
+  const L = level.layout, g = $("grid");
+  const board = $("board").getBoundingClientRect();
+  const s = Math.max(26, Math.min(54, (Math.min(board.width, 480) - 5 * (L.cols - 1)) / L.cols, (board.height - 20 - 5 * (L.rows - 1)) / L.rows));
+  g.style.setProperty("--s", s + "px");
+  g.style.gridTemplateColumns = `repeat(${L.cols}, ${s}px)`;
+  g.style.gridTemplateRows = `repeat(${L.rows}, ${s}px)`;
+  g.innerHTML = "";
+  const seen = new Set();
+  for (const p of L.words) for (const c of cellsOf(p)) {
+    const k = c.r + "," + c.c; if (seen.has(k)) continue; seen.add(k);
+    const d = document.createElement("div");
+    d.className = "cell"; d.id = "c" + k.replace(",", "_");
+    d.style.gridRow = c.r + 1; d.style.gridColumn = c.c + 1;
+    d.innerHTML = "<span>" + c.ch + "</span>";
+    if (state.revealed.has(k)) d.classList.add("show");
+    g.appendChild(d);
+  }
+  for (const w of state.found) showWord(w, false);
+}
+function showWord(w, animate = true){
+  const p = level.layout.words.find(x => x.word === w); if (!p) return;
+  cellsOf(p).forEach((c, i) => {
+    const k = c.r + "," + c.c, el = $("c" + k.replace(",", "_"));
+    state.revealed.add(k);
+    if (!animate) { el.classList.add("show"); return; }
+    setTimeout(() => { el.classList.add("show"); el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }, i * 90);
+  });
+}
+
+// ---------- عجلة الحروف ----------
+function renderWheel(){
+  const wheel = $("wheel");
+  const W = Math.min(window.innerWidth - 150, 270, window.innerHeight * .34);
+  const n = level.letters.length, L = Math.min(68, W * (n <= 4 ? .3 : .26));
+  wheel.style.setProperty("--w", W + "px"); wheel.style.setProperty("--l", L + "px");
+  wheel.querySelectorAll(".letter").forEach(e => e.remove());
+  const R = W / 2 - L / 2 - 8;
+  nodes = state.order.map((li, slot) => {
+    const a = -Math.PI / 2 + slot * 2 * Math.PI / n;
+    return { li, x: W / 2 + R * Math.cos(a), y: W / 2 + R * Math.sin(a) };
+  });
+  nodes.forEach((nd, i) => {
+    const el = document.createElement("div");
+    el.className = "letter"; el.textContent = level.letters[nd.li];
+    el.style.left = nd.x + "px"; el.style.top = nd.y + "px"; el.dataset.i = i;
+    wheel.appendChild(el); nd.el = el;
+  });
+  tracker = new SwipeTracker(nodes, L * .55);
+}
+
+// ---------- السحب ----------
+const wheel = $("wheel");
+let dragging = false;
+function local(e){ const r = wheel.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+function currentWord(){ return tracker.path.map(i => level.letters[nodes[i].li]).join(""); }
+function drawPath(px, py){
+  const pts = tracker.path.map(i => nodes[i].x + "," + nodes[i].y).join(" ");
+  $("path").setAttribute("points", pts);
+  const last = nodes[tracker.path[tracker.path.length - 1]], t = $("tail");
+  if (last && px != null) { t.setAttribute("x1", last.x); t.setAttribute("y1", last.y); t.setAttribute("x2", px); t.setAttribute("y2", py); }
+  t.style.display = last && px != null ? "" : "none";
+  nodes.forEach((nd, i) => nd.el.classList.toggle("on", tracker.path.includes(i)));
+  const pv = $("preview"); pv.className = "preview"; $("current").textContent = currentWord();
+}
+wheel.addEventListener("pointerdown", e => {
+  const [x, y] = local(e);
+  if (!tracker.start(x, y)) return;
+  dragging = true; wheel.setPointerCapture(e.pointerId);
+  sfx.tick(0); drawPath(x, y);
+});
+wheel.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const [x, y] = local(e);
+  if (tracker.move(x, y)) { sfx.tick(tracker.path.length); vibrate(8); }
+  drawPath(x, y);
+});
+function finish(){
+  if (!dragging) return; dragging = false;
+  const word = currentWord(); tracker.end(); drawPath();
+  $("current").textContent = word;
+  if (word.length) submit(word);
+}
+wheel.addEventListener("pointerup", finish);
+wheel.addEventListener("pointercancel", finish);
+
+// ---------- التحقق ----------
+function submit(word){
+  const res = checkWord(word, level, state, DICT);
+  const pv = $("preview");
+  const flash = (cls, msg) => { pv.className = "preview " + cls; if (msg) toast(msg); setTimeout(() => { if (pv.classList.contains(cls)) { pv.className = "preview"; $("current").textContent = ""; } }, 700); };
+  switch (res.type) {
+    case "target":
+      state.found.add(res.word); showWord(res.word); sfx.ok(); vibrate(25); flash("ok"); saveProgress(); checkWin(); break;
+    case "repeat":      flash("bad", "وجدتها من قبل!"); sfx.bad(); break;
+    case "bonus":
+      state.bonus.add(res.word); updateBonus(); setCoins(save.coins + 1); sfx.coin(); flash("bonus", "كلمة مكافأة! +1"); flyCoin(); saveProgress(); break;
+    case "bonusRepeat": flash("bad", "كلمة مكافأة سابقة"); sfx.bad(); break;
+    case "short":       pv.className = "preview"; $("current").textContent = ""; break;
+    default:            flash("bad"); sfx.bad(); vibrate([30, 40, 30]);
+  }
+}
+function wordDone(p){ return cellsOf(p).every(c => state.revealed.has(c.r + "," + c.c)); }
+function checkWin(){
+  // كلمة كُشفت حروفها كلها بالتلميحات تُحسب كأنها وُجدت
+  for (const p of level.layout.words) if (!state.found.has(p.word) && wordDone(p)) state.found.add(p.word);
+  if (!level.layout.words.every(p => state.found.has(p.word))) return;
+  const reward = 10 + state.bonus.size;
+  setTimeout(() => {
+    sfx.win(); setCoins(save.coins + reward);
+    $("win-coins").textContent = reward;
+    $("win-msg").textContent = "أنهيت المستوى " + (level.index + 1) + (state.bonus.size ? " مع " + state.bonus.size + " كلمة مكافأة" : "");
+    save.level = level.index + 1; save.progress = null; persist();
+    $("win").classList.add("on");
+  }, 900);
+}
+
+// ---------- أدوات المساعدة ----------
+function hiddenCells(){
+  const out = [];
+  for (const p of level.layout.words) if (!state.found.has(p.word))
+    for (const c of cellsOf(p)) { const k = c.r + "," + c.c; if (!state.revealed.has(k) && !out.includes(k)) out.push(k); }
+  return out;
+}
+function revealCell(k){
+  state.revealed.add(k);
+  const el = $("c" + k.replace(",", "_")); el.classList.add("show", "hint", "pop");
+}
+$("hint").onclick = () => {
+  const hidden = hiddenCells(); if (!hidden.length) return;
+  if (save.coins < 25) { toast("لا تملك عملات كافية"); sfx.bad(); return; }
+  setCoins(save.coins - 25); revealCell(hidden[Math.random() * hidden.length | 0]); sfx.coin(); saveProgress(); checkWin();
+};
+$("reveal").onclick = () => {
+  const p = level.layout.words.find(x => !state.found.has(x.word)); if (!p) return;
+  if (save.coins < 60) { toast("لا تملك عملات كافية"); sfx.bad(); return; }
+  setCoins(save.coins - 60); state.found.add(p.word); showWord(p.word); sfx.ok(); saveProgress(); checkWin();
+};
+$("shuffle").onclick = () => {
+  state.order = shuffleArr(state.order.slice()); saveProgress();
+  renderWheel(); sfx.tick(3);
+};
+function updateBonus(){ $("bonus-cnt").textContent = state.bonus.size; }
+$("bonus-btn").onclick = () => {
+  $("bonus-list").innerHTML = state.bonus.size ? [...state.bonus].map(w => "<span>" + w + "</span>").join("") : "<p>لم تجد كلمات مكافأة بعد</p>";
+  $("bonus-box").classList.add("on");
+};
+$("bonus-close").onclick = () => $("bonus-box").classList.remove("on");
+
+// ---------- تنقل ----------
+function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
+function refreshHome(){ $("home-level").textContent = "المستوى " + (save.level + 1); $("sound-btn").textContent = save.sound ? "🔊 الصوت" : "🔇 الصوت"; }
+$("play").onclick = () => { show("game"); loadLevel(save.level); };
+$("back").onclick = () => { show("home"); refreshHome(); };
+$("next").onclick = () => { $("win").classList.remove("on"); loadLevel(save.level); };
+$("sound-btn").onclick = () => { save.sound = !save.sound; persist(); refreshHome(); };
+$("daily").onclick = () => {
+  const today = new Date().toDateString();
+  if (save.daily === today) { toast("عد غدًا لهدية جديدة"); return; }
+  save.daily = today; setCoins(save.coins + 50); sfx.win(); toast("🎁 حصلت على 50 عملة!");
+};
+addEventListener("resize", () => { if ($("game").classList.contains("on")) { renderGrid(); renderWheel(); } });
+
+// ---------- مساعدات الواجهة ----------
+let tt;
+function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 1400); }
+function flyCoin(){
+  const r = $("preview").getBoundingClientRect(), f = document.createElement("div");
+  f.className = "fly"; f.textContent = "+1 🪙"; f.style.left = (r.left + r.width / 2 - 20) + "px"; f.style.top = r.top + "px";
+  document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+
+setCoins(save.coins); refreshHome();
+</script>
+</body>
+</html>
