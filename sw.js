@@ -1,4 +1,4 @@
-const CACHE = "memory-game-v2";
+const CACHE = "memory-game-v3";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -23,16 +23,24 @@ function save(req, res){
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  // لا نتدخل في طلبات المواقع الأخرى ولا في ملفات .well-known (مهمة لتطبيق أندرويد)
+  if (url.origin !== location.origin || url.pathname.startsWith("/.well-known/")) return;
 
   // الصفحات: من الشبكة أولًا حتى تظهر التحديثات فورًا، ومن الذاكرة عند انقطاع الإنترنت
   if (req.mode === "navigate") {
+    const isRoot = url.pathname === "/" || url.pathname === "/index.html";
     e.respondWith(
       fetch(req).then(r => save(req, r))
-        .catch(() => caches.match(req).then(hit => hit || caches.match("index.html")))
+        .catch(() => caches.match(req).then(hit => hit || (isRoot ? caches.match("index.html") : Response.error())))
     );
     return;
   }
 
-  // باقي الملفات: من الذاكرة أولًا ثم الشبكة
-  e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => save(req, r))));
+  // باقي الملفات: من الذاكرة فورًا مع تحديثها في الخلفية حتى لا تبقى نسخة قديمة إلى الأبد
+  e.respondWith(caches.match(req).then(hit => {
+    const net = fetch(req).then(r => save(req, r));
+    if (hit) { e.waitUntil(net.catch(() => {})); return hit; }
+    return net;
+  }));
 });

@@ -82,7 +82,7 @@ h1{font-family:"Reem Kufi",serif; font-weight:700; font-size:2.4rem; margin:6px 
 </div>
 <script>
 const LETTERS = "أبتثجحخدذرزسشصضطظعغفقكلمنهوي".split("");
-let pairs = 6, cards = [], first = null, lock = false, moves = 0, matched = 0, secs = 0, timer = null;
+let pairs = 6, cards = [], first = null, lock = false, moves = 0, matched = 0, secs = 0, timer = null, round = 0;
 const $ = id => document.getElementById(id);
 
 function getBest(){ try { return localStorage.getItem("mem-best-" + pairs); } catch(e){ return null; } }
@@ -97,7 +97,7 @@ function setLevel(n){
 }
 
 function start(){
-  clearInterval(timer); timer = null;
+  clearInterval(timer); timer = null; round++;
   first = null; lock = false; moves = 0; matched = 0; secs = 0;
   $("moves").textContent = 0; $("time").textContent = "0:00"; showBest();
   $("win").classList.remove("show");
@@ -126,7 +126,8 @@ function flip(el, i){
     if (++matched === pairs) finish();
   } else {
     lock = true;
-    setTimeout(() => { a.el.classList.remove("open"); el.classList.remove("open"); lock = false; }, 750);
+    const r = round;
+    setTimeout(() => { if (r !== round) return; a.el.classList.remove("open"); el.classList.remove("open"); lock = false; }, 750);
   }
 }
 
@@ -139,7 +140,8 @@ function finish(){
   showBest();
   $("wmsg").textContent = "أنهيت اللعبة في " + moves + " حركة و" + fmt(secs) + ".";
   $("wbest").textContent = msg;
-  setTimeout(() => $("win").classList.add("show"), 450);
+  const r = round;
+  setTimeout(() => { if (r === round) $("win").classList.add("show"); }, 450);
 }
 
 document.querySelectorAll("#levels button").forEach(b => b.addEventListener("click", () => setLevel(+b.dataset.n)));
