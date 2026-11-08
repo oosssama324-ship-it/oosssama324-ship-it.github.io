@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مطعم الديار</title>
+<meta name="description" content="نموذج تجريبي لموقع مطعم: قائمة الطعام، الطلب عبر واتساب، المواعيد والموقع.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2b1a10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   للتعديل لزبون جديد: غيّر الألوان هنا، ثم البيانات في CONFIG أسفل الصفحة
+   ===================================================================== */
+:root{
+  --bg:#fbf6ee; --surface:#ffffff; --text:#2b1a10; --muted:#7a6656; --line:#eadfce;
+  --brand:#c0392b; --brand-2:#962d22; --accent:#e9a23b; --dark:#2b1a10; --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#1a120c; --surface:#251a12; --text:#f6ece0; --muted:#bba892; --line:#3b2b1f; }
+}
+:root[data-theme="dark"]{ --bg:#1a120c; --surface:#251a12; --text:#f6ece0; --muted:#bba892; --line:#3b2b1f; }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:70px}
+body{margin:0; background:var(--bg); color:var(--text); font-family:"Cairo",system-ui,sans-serif; line-height:1.8}
+a{color:inherit; text-decoration:none}
+.wrap{max-width:1100px; margin:0 auto; padding:0 16px}
+section{padding:72px 0}
+h2{font-family:"Lalezar",serif; font-weight:400; font-size:clamp(2rem,5vw,2.8rem); margin:0 0 8px; line-height:1.3}
+.sub{color:var(--muted); margin:0 0 32px}
+.center{text-align:center}
+:focus-visible{outline:3px solid var(--accent); outline-offset:3px; border-radius:8px}
+
+/* شريط النموذج التجريبي */
+.demo-bar{background:#111; color:#fff; font-size:.9rem; text-align:center; padding:8px 12px}
+.demo-bar a{color:var(--accent); font-weight:800; text-decoration:underline}
+
+header{position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.nav{display:flex; align-items:center; justify-content:space-between; height:64px; gap:12px}
+.logo{font-family:"Lalezar",serif; font-size:1.7rem; color:var(--brand)}
+.nav ul{display:flex; gap:22px; list-style:none; margin:0; padding:0; font-weight:700; color:var(--muted)}
+.nav ul a:hover{color:var(--text)}
+@media (max-width:720px){ .nav ul{display:none} }
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px; border-radius:999px; font:800 1rem "Cairo",sans-serif; border:0; cursor:pointer; transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn-wa{background:#25d366; color:#fff}
+.btn-main{background:var(--brand); color:#fff}
+.btn-line{background:transparent; color:#fff; border:2px solid rgba(255,255,255,.7)}
+
+/* الواجهة */
+.hero{position:relative; color:#fff; padding:96px 0 110px; overflow:hidden;
+  background:radial-gradient(circle at 80% 20%, rgba(233,162,59,.35), transparent 45%), linear-gradient(160deg,#3a1d10,#7a2a1c 55%,#c0392b)}
+.hero::after{content:"🍢 🥙 🍲 🥗 🍰 ☕"; position:absolute; bottom:-10px; inset-inline:0; font-size:3.5rem; letter-spacing:22px; opacity:.13; text-align:center; white-space:nowrap}
+.hero h1{font-family:"Lalezar",serif; font-weight:400; font-size:clamp(2.8rem,9vw,5rem); margin:0; line-height:1.15}
+.hero p{font-size:1.2rem; opacity:.9; max-width:540px; margin:12px 0 28px}
+.hero .row{display:flex; flex-wrap:wrap; gap:12px}
+.open{display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.14); padding:5px 14px; border-radius:999px; font-weight:700; margin-bottom:18px}
+.open i{width:9px; height:9px; border-radius:50%; background:#2ecc71}
+.open.closed i{background:#e74c3c}
+
+/* المميزات */
+.feats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:-56px; position:relative}
+@media (max-width:820px){ .feats{grid-template-columns:repeat(2,1fr)} }
+.feat{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; text-align:center; box-shadow:0 10px 30px rgba(43,26,16,.08)}
+.feat b{display:block; font-size:2rem}
+.feat span{font-weight:700}
+
+/* القائمة */
+.tabs{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:26px}
+.tab{border:1px solid var(--line); background:var(--surface); color:var(--text); font:700 1rem "Cairo",sans-serif; padding:8px 18px; border-radius:999px; cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--brand); border-color:var(--brand); color:#fff}
+.menu{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px}
+.dish{display:flex; gap:14px; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px}
+.dish .em{flex:none; width:64px; height:64px; border-radius:16px; display:grid; place-items:center; font-size:2.1rem; background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.dish h3{margin:0; font-size:1.05rem}
+.dish p{margin:0; color:var(--muted); font-size:.9rem; line-height:1.6}
+.dish .info{flex:1}
+.dish .price{font-weight:800; color:var(--brand); white-space:nowrap}
+.add{width:36px; height:36px; border-radius:50%; border:0; background:var(--brand); color:#fff; font-size:1.3rem; cursor:pointer; flex:none}
+
+/* آراء/معرض */
+.gallery{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+@media (max-width:720px){ .gallery{grid-template-columns:repeat(2,1fr)} }
+.gallery div{aspect-ratio:1; border-radius:var(--radius); display:grid; place-items:center; font-size:3.4rem}
+
+/* معلومات */
+.info-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+@media (max-width:720px){ .info-grid{grid-template-columns:1fr} }
+.box{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+.box h3{margin:0 0 12px; font-size:1.2rem}
+.hours{list-style:none; padding:0; margin:0}
+.hours li{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line)}
+.hours li.today{color:var(--brand); font-weight:800}
+.map{width:100%; height:220px; border:0; border-radius:12px; margin-top:12px; background:var(--line)}
+
+footer{background:var(--dark); color:#e9dccb; padding:32px 0; text-align:center; font-size:.95rem}
+footer .social{display:flex; justify-content:center; gap:14px; margin:12px 0}
+
+/* سلة الطلب */
+.cart{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); inset-inline:16px; max-width:520px; margin:0 auto; background:var(--dark); color:#fff; border-radius:18px; padding:12px 14px; display:none; align-items:center; gap:12px; box-shadow:0 12px 30px rgba(0,0,0,.35); z-index:30}
+.cart.on{display:flex}
+body.has-cart{padding-bottom:96px}
+.cart .sum{flex:1; line-height:1.4}
+.cart small{opacity:.75}
+.cart .clear{background:transparent; border:0; color:#fff; opacity:.7; font-size:1.3rem; cursor:pointer}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} .btn{transition:none} }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">هذا <b>نموذج تجريبي</b> لموقع مطعم. <a id="demo-cta" href="#">اطلب موقعًا مثله لمحلك</a></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo" id="name-logo">مطعم الديار</a>
+    <ul><li><a href="#menu">القائمة</a></li><li><a href="#gallery">أجواؤنا</a></li><li><a href="#visit">الموقع والمواعيد</a></li></ul>
+    <a class="btn btn-wa" id="wa-top" href="#" target="_blank" rel="noopener">اطلب الآن</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="open" id="open"><i></i><span>مفتوح الآن</span></span>
+    <h1 id="name-hero">مطعم الديار</h1>
+    <p id="tagline">أكل بيتي بطعم زمان: مشاوي، أطباق يومية، وحلويات طازجة كل يوم.</p>
+    <div class="row">
+      <a class="btn btn-wa" id="wa-hero" href="#" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.9 14c-.2.6-1.2 1.1-1.7 1.2-.4.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.4.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.5 1.9 1 .9 1.9 1.2 2.1 1.3.3.1.4.1.6-.1l.8-1c.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.5.3 0 .2 0 .7-.2 1.3z"/></svg>
+        اطلب عبر واتساب</a>
+      <a class="btn btn-line" href="#menu">شاهد القائمة</a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="feats">
+    <div class="feat"><b>🛵</b><span>توصيل سريع</span></div>
+    <div class="feat"><b>🥩</b><span>لحوم طازجة يوميًا</span></div>
+    <div class="feat"><b>👨‍🍳</b><span>طبخ بيتي</span></div>
+    <div class="feat"><b>💳</b><span>الدفع عند الاستلام</span></div>
+  </div>
+</div>
+
+<section id="menu">
+  <div class="wrap center">
+    <h2>قائمة الطعام</h2>
+    <p class="sub">اضغط + لإضافة الطبق، ثم أرسل طلبك عبر واتساب بضغطة واحدة.</p>
+    <div class="tabs" id="tabs"></div>
+    <div class="menu" id="menu-list" style="text-align:start"></div>
+  </div>
+</section>
+
+<section id="gallery" style="padding-top:0">
+  <div class="wrap center">
+    <h2>أجواؤنا</h2>
+    <p class="sub">ضع هنا صور المطعم والأطباق الحقيقية.</p>
+    <div class="gallery">
+      <div style="background:#f3d9b1">🍢</div><div style="background:#f6c9b8">🥘</div>
+      <div style="background:#d8e8c9">🥗</div><div style="background:#f1e1c4">🍰</div>
+    </div>
+  </div>
+</section>
+
+<section id="visit" style="padding-top:0">
+  <div class="wrap">
+    <h2 class="center">زورونا</h2>
+    <p class="sub center">ننتظركم في المطعم أو نوصل لكم الطلب إلى البيت.</p>
+    <div class="info-grid">
+      <div class="box">
+        <h3>🕐 مواعيد العمل</h3>
+        <ul class="hours" id="hours"></ul>
+      </div>
+      <div class="box">
+        <h3>📍 العنوان</h3>
+        <p id="address" style="margin:0"></p>
+        <p style="margin:6px 0 0"><a id="phone" href="#" style="font-weight:800; direction:ltr; unicode-bidi:embed"></a></p>
+        <iframe class="map" id="map" title="الخريطة" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo" id="name-foot">مطعم الديار</div>
+    <div class="social"><a href="#" aria-label="فيسبوك">فيسبوك</a> · <a href="#" aria-label="إنستغرام">إنستغرام</a> · <a href="#" aria-label="تيك توك">تيك توك</a></div>
+    <small>© <span id="year"></span> جميع الحقوق محفوظة</small>
+  </div>
+</footer>
+
+<div class="cart" id="cart" role="region" aria-label="الطلب">
+  <button class="clear" id="clear" aria-label="إفراغ الطلب">✕</button>
+  <div class="sum"><b id="cart-count"></b><br><small id="cart-total"></small></div>
+  <a class="btn btn-wa" id="send" href="#" target="_blank" rel="noopener">أرسل الطلب</a>
+</div>
+
+<script>
+/* =====================================================================
+   بيانات المطعم — لتجهيز موقع لزبون جديد عدّل هذا الجزء فقط
+   ===================================================================== */
+const CONFIG = {
+  name: "مطعم الديار",
+  tagline: "أكل بيتي بطعم زمان: مشاوي، أطباق يومية، وحلويات طازجة كل يوم.",
+  whatsapp: "212600000000",          // رقم واتساب المطعم بالصيغة الدولية بدون + أو أصفار
+  phone: "+212 600 000 000",
+  address: "شارع المثال، حي النموذج، المدينة",
+  mapQuery: "Marrakech",             // اسم المكان كما يُكتب في خرائط Google
+  currency: "درهم",
+  // ساعات العمل: [يوم الأحد … السبت] — [ساعة الفتح، ساعة الإغلاق] أو null للعطلة
+  hours: [[12, 23], [12, 23], [12, 23], [12, 23], [12, 23], [13, 24], [12, 24]],
+  // رقم واتساب صاحب الخدمة (أنت) لزر «اطلب موقعًا مثله» في الشريط العلوي
+  designerWhatsapp: "212600000000",
+  menu: {
+    "المشاوي":   [["🍢", "كباب لحم", "مع خبز وسلطة وصوص الثوم", 45], ["🍗", "دجاج مشوي", "نصف دجاجة متبّلة على الفحم", 40], ["🥩", "مشكل مشاوي", "كباب، شيش طاووق، كفتة", 75]],
+    "أطباق اليوم": [["🍲", "طاجين لحم بالبرقوق", "طبق يوم الجمعة", 60], ["🥘", "كسكس بالخضر", "مع لحم أو دجاج", 50], ["🍛", "أرز بالدجاج", "مع مرق الخضار", 40]],
+    "المقبلات":  [["🥗", "سلطة الديار", "خضار موسمية وزيت زيتون", 20], ["🫓", "بسطيلة صغيرة", "دجاج ولوز", 30], ["🍟", "بطاطس مقلية", "طبق كبير", 15]],
+    "المشروبات والحلويات": [["🍵", "أتاي بالنعناع", "إبريق صغير", 10], ["🧃", "عصير طبيعي", "برتقال أو أفوكادو", 15], ["🍰", "حلويات البيت", "قطعتان", 20]]
+  }
+};
+
+const $ = id => document.getElementById(id);
+const wa = (num, text) => "https://wa.me/" + num + "?text=" + encodeURIComponent(text);
+const money = n => n + " " + CONFIG.currency;
+document.title = CONFIG.name;
+["name-logo", "name-hero", "name-foot"].forEach(id => $(id).textContent = CONFIG.name);
+$("tagline").textContent = CONFIG.tagline;
+$("address").textContent = CONFIG.address;
+$("phone").textContent = CONFIG.phone; $("phone").href = "tel:" + CONFIG.phone.replace(/\s/g, "");
+$("map").src = "https://maps.google.com/maps?q=" + encodeURIComponent(CONFIG.mapQuery) + "&z=14&output=embed";
+$("year").textContent = new Date().getFullYear();
+["wa-top", "wa-hero"].forEach(id => $(id).href = wa(CONFIG.whatsapp, "السلام عليكم، أريد أن أطلب من " + CONFIG.name));
+$("demo-cta").href = wa(CONFIG.designerWhatsapp, "السلام عليكم، رأيت نموذج موقع المطعم وأريد موقعًا مثله لمحلي");
+
+// مفتوح أم مغلق الآن + جدول المواعيد
+const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const now = new Date(), d = now.getDay(), h = now.getHours();
+const fmt = x => (x % 24 === 0 ? "12 ليلًا" : x < 12 ? x + " صباحًا" : x === 12 ? "12 ظهرًا" : (x - 12) + " مساءً");
+$("hours").innerHTML = DAYS.map((name, i) => {
+  const t = CONFIG.hours[i];
+  return `<li class="${i === d ? "today" : ""}"><span>${name}</span><span>${t ? fmt(t[0]) + " – " + fmt(t[1]) : "مغلق"}</span></li>`;
+}).join("");
+const t = CONFIG.hours[d], isOpen = t && h >= t[0] && h < t[1];
+if (!isOpen) { $("open").classList.add("closed"); $("open").querySelector("span").textContent = "مغلق الآن"; }
+
+// القائمة + السلة
+const cart = new Map();
+let current = Object.keys(CONFIG.menu)[0];
+function renderTabs(){
+  $("tabs").innerHTML = Object.keys(CONFIG.menu).map(c => `<button class="tab" aria-pressed="${c === current}">${c}</button>`).join("");
+  $("tabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { current = b.textContent; renderTabs(); renderMenu(); });
+}
+function renderMenu(){
+  $("menu-list").innerHTML = CONFIG.menu[current].map(([em, name, desc, price], i) => `
+    <div class="dish"><div class="em">${em}</div>
+      <div class="info"><h3>${name}</h3><p>${desc}</p><span class="price">${money(price)}</span></div>
+      <button class="add" data-i="${i}" aria-label="أضف ${name}">+</button></div>`).join("");
+  $("menu-list").querySelectorAll(".add").forEach(b => b.onclick = () => {
+    const [, name, , price] = CONFIG.menu[current][+b.dataset.i];
+    const it = cart.get(name) || { qty: 0, price }; it.qty++; cart.set(name, it); renderCart();
+  });
+}
+function renderCart(){
+  let count = 0, total = 0;
+  for (const it of cart.values()) { count += it.qty; total += it.qty * it.price; }
+  $("cart").classList.toggle("on", count > 0);
+  const plural = count === 1 ? "طبق واحد" : count === 2 ? "طبقان" : count <= 10 ? count + " أطباق" : count + " طبقًا";
+  $("cart-count").textContent = plural + " في طلبك";
+  document.body.classList.toggle("has-cart", count > 0);
+  $("cart-total").textContent = "المجموع: " + money(total);
+  const lines = [...cart].map(([n, it]) => `• ${n} × ${it.qty} = ${money(it.qty * it.price)}`).join("\n");
+  $("send").href = wa(CONFIG.whatsapp, `السلام عليكم، أريد أن أطلب من ${CONFIG.name}:\n${lines}\n\nالمجموع: ${money(total)}\nالعنوان: `);
+}
+$("clear").onclick = () => { cart.clear(); renderCart(); };
+renderTabs(); renderMenu();
+</script>
+</body>
+</html>
