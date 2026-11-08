@@ -15,7 +15,7 @@
     { theme: "الكتب",   letters: ["ك", "ت", "ا", "ب"],       words: ["كتاب", "كتب", "تاب", "بات"],           bonus: [] },
     { theme: "الكتب",   letters: ["ع", "ل", "م", "ا"],       words: ["عالم", "علم", "عام", "مع"],            bonus: ["لما", "ما", "لا"] },
     { theme: "الكتب",   letters: ["س", "ل", "ا", "م"],       words: ["سلام", "سلم", "مال", "سال"],           bonus: ["لما", "ما", "لا", "سما"] },
-    { theme: "الصحراء", letters: ["ك", "ر", "ي", "م"],       words: ["كريم", "كرم", "ريم", "مكر", "كم"],     bonus: ["ركي"] },
+    { theme: "الصحراء", letters: ["ك", "ر", "ي", "م"],       words: ["كريم", "كرم", "ريم", "مكر", "كم"],     bonus: [] },
     { theme: "الصحراء", letters: ["ج", "م", "ي", "ل"],       words: ["جميل", "جمل", "جيل", "ميل", "لم"],     bonus: [] }
   ];
   if (typeof module !== "undefined" && module.exports) module.exports = LEVELS; else root.LEVELS = LEVELS;

@@ -16,9 +16,6 @@
   --ok:#2fbf71; --bad:#e5484d; --card:rgba(255,255,255,.14); --line:rgba(255,255,255,.25);
 }
 /* ألوان كل عالم (Theme) */
-body[data-theme="البحر"]{ --sky1:#0b3b5a; --sky2:#138a9e; }
-body[data-theme="الكتب"]{ --sky1:#3b2350; --sky2:#7a3f7c; }
-body[data-theme="الصحراء"]{ --sky1:#6b3a1e; --sky2:#c47a35; }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0; font-family:"Cairo",system-ui,sans-serif; color:#fff; overflow:hidden; user-select:none; -webkit-user-select:none;
@@ -103,7 +100,7 @@ button{font-family:inherit; cursor:pointer}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} .cell span{transform:scale(1)} }
 </style>
 </head>
-<body data-theme="البداية">
+<body>
 
 <!-- الشاشة الرئيسية -->
 <section class="screen on" id="home">
@@ -131,7 +128,7 @@ button{font-family:inherit; cursor:pointer}
       <button class="tool" id="shuffle" aria-label="خلط الحروف"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
       <button class="tool" id="bonus-btn" aria-label="كلمات المكافأة"><span style="font-size:1.4rem">⭐</span><span class="cnt" id="bonus-cnt">0</span></button>
     </div>
-    <div class="wheel" id="wheel"><svg id="lines"><polyline id="path"/><line id="tail"/></svg></div>
+    <div class="wheel" id="wheel"><svg id="lines"><polyline id="path"/><line id="tail" style="display:none"/></svg></div>
     <div class="side">
       <button class="tool" id="hint" aria-label="كشف حرف"><span style="font-size:1.4rem">💡</span><span class="cost">25</span></button>
       <button class="tool" id="reveal" aria-label="كشف كلمة"><span style="font-size:1.4rem">🔍</span><span class="cost">60</span></button>
@@ -164,10 +161,32 @@ button{font-family:inherit; cursor:pointer}
 
 <script src="engine.js"></script>
 <script src="levels.js"></script>
+<script src="levels-gen.js"></script>
 <script>
 "use strict";
 const { normalize, buildCrossword, cellsOf, SwipeTracker, checkWord } = window.Wasla;
 const $ = id => document.getElementById(id);
+
+// ---------- العوالم والمستويات ----------
+// ألوان كل عالم: [لون أعلى الخلفية، لون أسفلها]
+const THEMES = {
+  "البداية": ["#123a5c", "#1d6a8a"], "البحر": ["#0b3b5a", "#138a9e"], "الكتب": ["#3b2350", "#7a3f7c"],
+  "الصحراء": ["#6b3a1e", "#c47a35"], "الواحة": ["#14452f", "#2f8f5b"], "الأندلس": ["#5a1f2b", "#b4495a"],
+  "السوق": ["#5b2a0e", "#d0742a"], "النجوم": ["#120f3a", "#3b3a8f"], "الجبال": ["#24323f", "#5d7a8c"],
+  "القلعة": ["#3a2a1a", "#8a6a3f"], "النيل": ["#0f3d4a", "#2a9d8f"], "الحديقة": ["#2d4a14", "#7ab32f"],
+  "القمر": ["#0d1b2a", "#415a77"], "المرجان": ["#4a1530", "#e0607e"]
+};
+const GEN_WORLDS = ["الواحة", "الأندلس", "السوق", "النجوم", "الجبال", "القلعة", "النيل", "الحديقة", "القمر", "المرجان"];
+const ALL_LEVELS = LEVELS.concat((window.LEVELS_GEN || []).map((g, i) => ({
+  theme: GEN_WORLDS[Math.floor(i / 30) % GEN_WORLDS.length], letters: [...g.l], words: g.w, bonus: []
+})));
+
+// ---------- المعجم ----------
+// يُحمَّل في الخلفية؛ أي كلمة صحيحة فيه يمكن تكوينها من الحروف تُحسب كلمة مكافأة.
+let DICT = null;
+fetch("dict/ar-words.txt").then(r => r.ok ? r.text() : Promise.reject())
+  .then(t => { DICT = new Set(t.split("\n").map(w => normalize(w)).filter(Boolean)); })
+  .catch(() => {});
 
 // ---------- الحفظ ----------
 const SAVE_KEY = "wasla-save-v1";
@@ -200,7 +219,7 @@ const vibrate = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catc
 // ---------- حالة المستوى ----------
 let level, state, tracker, nodes = [];
 function loadLevel(i){
-  const def = LEVELS[i % LEVELS.length];
+  const def = ALL_LEVELS[i % ALL_LEVELS.length];
   level = { ...def, index: i, layout: buildCrossword(def.words) };
   const p = save.progress && save.progress.level === i ? save.progress : null;
   state = {
@@ -209,7 +228,9 @@ function loadLevel(i){
     revealed: new Set(p ? p.revealed : []),
     order: p ? p.order : shuffleArr([...def.letters.keys()])
   };
-  document.body.dataset.theme = def.theme;
+  const col = THEMES[def.theme] || THEMES["البداية"];
+  document.body.style.setProperty("--sky1", col[0]); document.body.style.setProperty("--sky2", col[1]);
+  document.querySelector('meta[name="theme-color"]').content = col[0];
   $("lvl-title").textContent = "المستوى " + (i + 1);
   $("lvl-theme").textContent = "عالم " + def.theme;
   renderGrid(); renderWheel(); updateBonus();
@@ -309,7 +330,7 @@ wheel.addEventListener("pointercancel", finish);
 
 // ---------- التحقق ----------
 function submit(word){
-  const res = checkWord(word, level, state);
+  const res = checkWord(word, level, state, DICT);
   const pv = $("preview");
   const flash = (cls, msg) => { pv.className = "preview " + cls; if (msg) toast(msg); setTimeout(() => { if (pv.classList.contains(cls)) { pv.className = "preview"; $("current").textContent = ""; } }, 700); };
   switch (res.type) {
