@@ -193,7 +193,7 @@ footer a:hover{color:var(--text)}
 <footer>
   <div class="wrap">
     <span>© <span id="year"></span> مركز التحميلات</span>
-    <span><a href="../">لعبة الذاكرة</a> · <a href="../privacy.html">سياسة الخصوصية</a></span>
+    <span><a href="../wasla/">وَصلة</a> · <a href="../">لعبة الذاكرة</a> · <a href="../privacy.html">سياسة الخصوصية</a></span>
   </div>
 </footer>
 
@@ -268,7 +268,7 @@ function openItem(id, push = true){
   let media = "";
   if (i.type === "video" && i.youtube) media = `<div class="media"><iframe src="https://www.youtube-nocookie.com/embed/${esc(i.youtube)}" title="${esc(i.title)}" allowfullscreen></iframe></div>`;
   else if (i.type === "video" && i.preview) media = `<div class="media"><video src="${esc(i.preview)}" poster="${esc(i.thumb||"")}" controls playsinline preload="metadata"></video></div>`;
-  else if (i.type === "image" && (i.preview || i.thumb)) media = `<div class="media"><img src="${esc(i.preview || i.thumb)}" alt="${esc(i.title)}"></div>`;
+  else if ((i.type === "image" && (i.preview || i.thumb)) || (i.type === "app" && i.preview)) media = `<div class="media"><img src="${esc(i.preview || i.thumb)}" alt="${esc(i.title)}"></div>`;
   else if (i.type === "app") media = `<div class="media app">${i.thumb ? `<img src="${esc(i.thumb)}" alt="">` : svg("app",80)}</div>`;
   else media = `<div class="media file" style="--c:${t.color}">${svg(i.type,80)}</div>`;
 
