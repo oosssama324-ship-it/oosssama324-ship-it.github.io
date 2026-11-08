@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مركز التحميلات</title>
+<meta name="description" content="حمّل التطبيقات والصور والفيديوهات والملفات مع شرح مفصّل لكل عنصر.">
+<meta property="og:title" content="مركز التحميلات">
+<meta property="og:description" content="تطبيقات، صور، فيديوهات وملفات مع الشرح.">
+<meta name="theme-color" content="#0b1d33">
+<link rel="icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f8fb; --surface:#ffffff; --surface-2:#eef1f7; --text:#0b1d33; --muted:#5a6b80;
+  --line:#dde3ec; --brand:#1f6feb; --brand-2:#0f4fb8; --accent:#f5a524; --on-brand:#fff;
+  --app:#1f6feb; --image:#db2777; --video:#dc2626; --file:#16a34a;
+  --shadow:0 10px 30px rgba(11,29,51,.08); --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1624; --surface:#102236; --surface-2:#15304a; --text:#eaf1fa; --muted:#9db0c6;
+    --line:#1f3a57; --brand:#4b8df8; --brand-2:#2f6fd6; --app:#4b8df8; --image:#f472b6; --video:#f87171; --file:#4ade80;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1624; --surface:#102236; --surface-2:#15304a; --text:#eaf1fa; --muted:#9db0c6;
+  --line:#1f3a57; --brand:#4b8df8; --brand-2:#2f6fd6; --app:#4b8df8; --image:#f472b6; --video:#f87171; --file:#4ade80;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--text); font-family:"Cairo",system-ui,sans-serif; line-height:1.8; -webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+a{color:inherit; text-decoration:none}
+img,svg,video{display:block; max-width:100%}
+.wrap{width:100%; max-width:1160px; margin:0 auto; padding:0 16px}
+:focus-visible{outline:3px solid var(--accent); outline-offset:3px; border-radius:8px}
+
+/* هيدر */
+header{position:sticky; top:0; z-index:30; background:color-mix(in srgb,var(--bg) 85%,transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--line)}
+.nav{display:flex; align-items:center; justify-content:space-between; height:68px; gap:12px}
+.logo{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.25rem}
+.logo-mark{width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--brand),var(--accent)); display:grid; place-items:center; color:#fff}
+.nav-r{display:flex; gap:8px; align-items:center}
+.nav-r a.lnk{color:var(--muted); font-weight:600; padding:8px 10px}
+.nav-r a.lnk:hover{color:var(--text)}
+.icon-btn{width:42px; height:42px; border-radius:11px; border:1px solid var(--line); background:var(--surface); color:var(--text); display:grid; place-items:center; cursor:pointer}
+@media (max-width:560px){ .nav-r a.lnk{display:none} }
+
+/* بطل */
+.hero{padding:56px 0 36px; text-align:center; position:relative; overflow:hidden}
+.hero::before{content:""; position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle,color-mix(in srgb,var(--brand) 18%,transparent),transparent 70%); top:-380px; left:50%; transform:translateX(-50%); pointer-events:none}
+.hero h1{position:relative; font-size:clamp(2rem,5vw,3.1rem); font-weight:800; line-height:1.3; margin:0}
+.hero p{position:relative; color:var(--muted); font-size:1.15rem; max-width:620px; margin:12px auto 0}
+.search{position:relative; max-width:560px; margin:28px auto 0}
+.search input{width:100%; font:inherit; font-size:1.05rem; color:var(--text); background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 50px 14px 16px; box-shadow:var(--shadow)}
+.search input:focus{outline:none; border-color:var(--brand); box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 25%,transparent)}
+.search svg{position:absolute; top:50%; right:16px; transform:translateY(-50%); color:var(--muted)}
+
+/* تبويبات */
+.tabs{display:flex; gap:8px; overflow-x:auto; padding:4px 0 6px; margin:8px 0 24px; scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font:700 .95rem "Cairo",sans-serif; padding:9px 16px; border-radius:999px; cursor:pointer}
+.tab .n{background:var(--surface-2); color:var(--muted); border-radius:999px; padding:0 8px; font-size:.8rem; font-variant-numeric:tabular-nums}
+.tab[aria-pressed="true"]{background:var(--text); color:var(--bg); border-color:var(--text)}
+.tab[aria-pressed="true"] .n{background:color-mix(in srgb,var(--bg) 20%,transparent); color:inherit}
+
+/* شبكة البطاقات */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px}
+.item{display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; cursor:pointer; text-align:start; padding:0; font:inherit; color:inherit; transition:transform .2s, box-shadow .2s}
+.item:hover{transform:translateY(-4px); box-shadow:var(--shadow)}
+.thumb{position:relative; aspect-ratio:16/10; background:var(--surface-2); display:grid; place-items:center; overflow:hidden}
+.thumb img{width:100%; height:100%; object-fit:cover}
+.thumb.contain img{object-fit:contain; padding:18px}
+.thumb .big{color:var(--c); opacity:.9}
+.play{position:absolute; width:54px; height:54px; border-radius:50%; background:rgba(0,0,0,.55); display:grid; place-items:center; color:#fff}
+.badge{position:absolute; top:10px; inset-inline-start:10px; display:inline-flex; align-items:center; gap:5px; background:var(--surface); color:var(--c); font-weight:700; font-size:.8rem; padding:2px 10px; border-radius:999px; box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.body{padding:16px 18px 18px; display:flex; flex-direction:column; flex:1}
+.body h3{margin:0 0 4px; font-size:1.08rem; line-height:1.5}
+.body p{margin:0; color:var(--muted); font-size:.95rem; flex:1}
+.foot{display:flex; justify-content:space-between; align-items:center; margin-top:14px; color:var(--muted); font-size:.85rem}
+.more{color:var(--brand); font-weight:700}
+.empty{text-align:center; color:var(--muted); padding:60px 0; display:none}
+.empty.show{display:block}
+
+/* أقسام الشرح */
+.how{padding:72px 0 0}
+.how h2{text-align:center; font-size:clamp(1.6rem,3.5vw,2.2rem); margin:0 0 30px}
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; counter-reset:s}
+@media (max-width:760px){ .steps{grid-template-columns:1fr} }
+.step{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+.step::before{counter-increment:s; content:counter(s,arabic-indic); width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--brand); color:#fff; font-weight:800; margin-bottom:12px}
+.step h3{margin:0 0 4px; font-size:1.08rem}
+.step p{margin:0; color:var(--muted)}
+
+.cta{margin:72px 0 0; background:linear-gradient(140deg,var(--brand-2),var(--brand)); color:#fff; border-radius:24px; padding:36px 28px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px}
+.cta h2{margin:0; font-size:1.5rem}
+.cta p{margin:4px 0 0; opacity:.9}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 22px; border-radius:12px; font:700 1rem "Cairo",sans-serif; border:2px solid transparent; cursor:pointer; transition:transform .15s, background .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--brand); color:var(--on-brand)}
+.btn-primary:hover{background:var(--brand-2)}
+.btn-light{background:#fff; color:#0b1d33}
+.btn-ghost{background:transparent; border-color:var(--line); color:var(--text)}
+
+footer{margin-top:72px; border-top:1px solid var(--line); padding:26px 0; color:var(--muted); font-size:.9rem}
+footer .wrap{display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px}
+footer a:hover{color:var(--text)}
+
+/* نافذة التفاصيل */
+.modal{position:fixed; inset:0; z-index:60; background:rgba(5,12,22,.7); display:none; align-items:flex-end; justify-content:center}
+.modal.show{display:flex}
+@media (min-width:700px){ .modal{align-items:center; padding:24px} }
+.sheet{background:var(--surface); width:100%; max-width:720px; max-height:92vh; overflow:auto; border-radius:22px 22px 0 0; position:relative; animation:up .25s ease}
+@media (min-width:700px){ .sheet{border-radius:22px} }
+@keyframes up{from{transform:translateY(30px); opacity:0}to{transform:none; opacity:1}}
+.close{position:absolute; top:12px; inset-inline-end:12px; z-index:2; width:40px; height:40px; border-radius:50%; border:0; background:rgba(0,0,0,.5); color:#fff; display:grid; place-items:center; cursor:pointer}
+.media{background:#000; display:grid; place-items:center}
+.media img,.media video{width:100%; max-height:58vh; object-fit:contain}
+.media iframe{width:100%; aspect-ratio:16/9; border:0}
+.media.app{background:var(--surface-2); padding:32px}
+.media.app img{width:120px; height:120px; border-radius:26px; box-shadow:var(--shadow)}
+.media.file{background:var(--surface-2); padding:40px; color:var(--file)}
+.content{padding:22px 24px 28px}
+.content .badge{position:static; box-shadow:none; background:color-mix(in srgb,var(--c) 14%,transparent)}
+.content h2{margin:10px 0 6px; font-size:1.5rem; line-height:1.4}
+.content > p{color:var(--muted); margin:0}
+.content h4{margin:22px 0 8px; font-size:1.05rem}
+.content ol{margin:0; padding-inline-start:22px; display:grid; gap:6px}
+.meta{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:20px}
+.meta div{background:var(--surface-2); border-radius:12px; padding:10px 14px}
+.meta small{display:block; color:var(--muted); font-size:.8rem}
+.meta b{font-size:.95rem}
+.actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:24px}
+.actions .btn{flex:1 1 180px}
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--text); color:var(--bg); padding:10px 18px; border-radius:12px; font-weight:700; opacity:0; transition:.25s; z-index:70; pointer-events:none}
+.toast.show{opacity:1; transform:translateX(-50%)}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="./" class="logo"><span class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+    </span>مركز التحميلات</a>
+    <div class="nav-r">
+      <a class="lnk" href="#how">طريقة التحميل</a>
+      <a class="lnk" href="#contact">تواصل</a>
+      <button class="icon-btn" id="theme" aria-label="تبديل الوضع الليلي">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>كل ما تحتاجه في مكان واحد</h1>
+    <p>تطبيقات وصور وفيديوهات وملفات، مع شرح واضح لكل عنصر وطريقة استخدامه.</p>
+    <label class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="ابحث عن تطبيق، صورة، فيديو أو ملف..." aria-label="بحث">
+    </label>
+  </section>
+
+  <div class="tabs" id="tabs" role="group" aria-label="التصنيفات"></div>
+  <div class="grid" id="grid" aria-live="polite"></div>
+  <p class="empty" id="empty">لا توجد نتائج مطابقة. جرّب كلمة أخرى.</p>
+
+  <section class="how" id="how">
+    <h2>كيف تحمّل وتستخدم المحتوى؟</h2>
+    <div class="steps">
+      <div class="step"><h3>اختر العنصر</h3><p>تصفّح حسب النوع أو استخدم البحث، ثم اضغط على البطاقة لعرض التفاصيل.</p></div>
+      <div class="step"><h3>اقرأ الشرح</h3><p>لكل عنصر وصف وخطوات استخدام ومعاينة للصورة أو الفيديو قبل التحميل.</p></div>
+      <div class="step"><h3>حمّل أو شارك</h3><p>اضغط «تحميل» لحفظه على جهازك، أو «مشاركة» لإرسال الرابط لأصدقائك.</p></div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <div>
+      <h2>تحتاج مساعدة أو تطلب محتوى معيّنًا؟</h2>
+      <p>راسلنا وسنرد عليك في أقرب وقت.</p>
+    </div>
+    <a class="btn btn-light" href="mailto:info@example.com">راسلنا</a>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> مركز التحميلات</span>
+    <span><a href="../">لعبة الذاكرة</a> · <a href="../privacy.html">سياسة الخصوصية</a></span>
+  </div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="items.js"></script>
+<script>
+const TYPES = {
+  all:   {label:"الكل"},
+  app:   {label:"تطبيقات", one:"تطبيق", color:"var(--app)",
+          icon:'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 18h3"/>'},
+  image: {label:"صور", one:"صورة", color:"var(--image)",
+          icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/>'},
+  video: {label:"فيديو", one:"فيديو", color:"var(--video)",
+          icon:'<rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/>'},
+  file:  {label:"ملفات", one:"ملف", color:"var(--file)",
+          icon:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>'}
+};
+const ITEMS = (window.ITEMS || []).slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const svg = (t, size=20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TYPES[t].icon}</svg>`;
+const fmtDate = d => { try { return new Date(d).toLocaleDateString("ar", {year:"numeric", month:"long", day:"numeric"}); } catch(e){ return d; } };
+$("#year").textContent = new Date().getFullYear();
+
+let filter = "all", query = "";
+
+// التبويبات
+function renderTabs(){
+  $("#tabs").innerHTML = Object.keys(TYPES).map(k => {
+    const n = k === "all" ? ITEMS.length : ITEMS.filter(i => i.type === k).length;
+    return `<button class="tab" data-k="${k}" aria-pressed="${k===filter}">${k!=="all" ? svg(k,16) : ""}${TYPES[k].label}<span class="n">${n}</span></button>`;
+  }).join("");
+  $("#tabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { filter = b.dataset.k; renderTabs(); renderGrid(); });
+}
+
+// البطاقات
+function renderGrid(){
+  const q = query.trim().toLowerCase();
+  const list = ITEMS.filter(i => (filter === "all" || i.type === filter) &&
+    (!q || [i.title, i.summary, i.details].join(" ").toLowerCase().includes(q)));
+  $("#grid").innerHTML = list.map(i => {
+    const t = TYPES[i.type] || TYPES.file;
+    const thumb = i.thumb
+      ? `<img src="${esc(i.thumb)}" alt="" loading="lazy">`
+      : `<span class="big">${svg(i.type,56)}</span>`;
+    return `<button class="item" data-id="${esc(i.id)}" style="--c:${t.color}">
+      <div class="thumb${i.type==="app" ? " contain" : ""}">
+        ${thumb}
+        ${i.type==="video" ? '<span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>' : ""}
+        <span class="badge">${svg(i.type,14)}${t.one}</span>
+      </div>
+      <div class="body">
+        <h3>${esc(i.title)}</h3>
+        <p>${esc(i.summary)}</p>
+        <div class="foot"><span>${i.date ? fmtDate(i.date) : ""}</span><span class="more">التفاصيل ←</span></div>
+      </div>
+    </button>`;
+  }).join("");
+  $("#empty").classList.toggle("show", !list.length);
+  $("#grid").querySelectorAll(".item").forEach(b => b.onclick = () => openItem(b.dataset.id));
+}
+
+// التفاصيل
+let lastFocus = null;
+function openItem(id, push = true){
+  const i = ITEMS.find(x => x.id === id); if (!i) return;
+  const t = TYPES[i.type] || TYPES.file;
+  let media = "";
+  if (i.type === "video" && i.youtube) media = `<div class="media"><iframe src="https://www.youtube-nocookie.com/embed/${esc(i.youtube)}" title="${esc(i.title)}" allowfullscreen></iframe></div>`;
+  else if (i.type === "video" && i.preview) media = `<div class="media"><video src="${esc(i.preview)}" poster="${esc(i.thumb||"")}" controls playsinline preload="metadata"></video></div>`;
+  else if (i.type === "image" && (i.preview || i.thumb)) media = `<div class="media"><img src="${esc(i.preview || i.thumb)}" alt="${esc(i.title)}"></div>`;
+  else if (i.type === "app") media = `<div class="media app">${i.thumb ? `<img src="${esc(i.thumb)}" alt="">` : svg("app",80)}</div>`;
+  else media = `<div class="media file" style="--c:${t.color}">${svg(i.type,80)}</div>`;
+
+  const steps = (i.steps||[]).length ? `<h4>طريقة الاستخدام</h4><ol>${i.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>` : "";
+  const meta = Object.entries(i.meta || {});
+  if (i.date) meta.push(["تاريخ الإضافة", fmtDate(i.date)]);
+  const metaHtml = meta.length ? `<div class="meta">${meta.map(([k,v]) => `<div><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>` : "";
+  const dl = i.url ? `<a class="btn btn-primary" href="${esc(i.url)}" ${i.download ? "download" : ""}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      ${esc(i.action || "تحميل")}</a>` : `<span class="btn btn-ghost" aria-disabled="true">قريبًا</span>`;
+
+  $("#sheet").innerHTML = `
+    <button class="close" id="close" aria-label="إغلاق"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    ${media}
+    <div class="content" style="--c:${t.color}">
+      <span class="badge">${svg(i.type,14)}${t.one}</span>
+      <h2 id="m-title">${esc(i.title)}</h2>
+      <p>${esc(i.details || i.summary)}</p>
+      ${steps}
+      ${metaHtml}
+      <div class="actions">
+        ${dl}
+        <button class="btn btn-ghost" id="share">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          مشاركة</button>
+      </div>
+    </div>`;
+  lastFocus = document.activeElement;
+  $("#modal").classList.add("show"); document.body.classList.add("lock");
+  $("#close").onclick = closeItem; $("#close").focus();
+  $("#share").onclick = () => share(i);
+  if (push) history.pushState({id}, "", "#" + id);
+}
+function closeItem(fromPop){
+  if (!$("#modal").classList.contains("show")) return;
+  const v = $("#sheet video"); if (v) v.pause();
+  $("#modal").classList.remove("show"); document.body.classList.remove("lock");
+  $("#sheet").innerHTML = "";
+  if (fromPop !== true) history.pushState(null, "", location.pathname + location.search);
+  if (lastFocus) lastFocus.focus();
+}
+async function share(i){
+  const url = location.href.split("#")[0] + "#" + i.id;
+  if (navigator.share) { try { await navigator.share({title:i.title, text:i.summary, url}); return; } catch(e){ if (e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); toast("تم نسخ الرابط"); } catch(e){ prompt("انسخ الرابط:", url); }
+}
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
+
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeItem(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeItem(); });
+addEventListener("popstate", () => { const id = location.hash.slice(1); id ? openItem(id, false) : closeItem(true); });
+$("#q").addEventListener("input", e => { query = e.target.value; renderGrid(); });
+
+// الوضع الليلي
+const root = document.documentElement;
+try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch(e){}
+$("#theme").onclick = () => {
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("theme", root.dataset.theme); } catch(e){}
+};
+
+renderTabs(); renderGrid();
+if (location.hash.length > 1) openItem(decodeURIComponent(location.hash.slice(1)), false);
+</script>
+</body>
+</html>
